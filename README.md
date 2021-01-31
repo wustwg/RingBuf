@@ -1,9 +1,9 @@
 # RingBuf
-A high performance RingBuf base by C++!
+A high performance, lock-free RingBuf base by C++!
 Support read/write,readv/writev.
 
 # 环形缓冲区
-一个基于C++实现的高效的环形缓冲区，代码数量很少，可根据自己的需求扩展接口。
+一个基于C++实现的高效、无锁的环形缓冲区，代码数量很少，可根据自己的需求扩展接口；也可以自己改造成C版本。
 支持read/write、readv/writev接口。
 
 ## 环形缓冲区的适用场景
