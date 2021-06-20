@@ -25,7 +25,7 @@ public:
      * @param size
      * @return 返回写的数据大小
      */
-    ssize_t write(char *buf, ssize_t size);
+    ssize_t write(const char *buf, ssize_t size);
 
     ssize_t read(char *buf, ssize_t size);
 
@@ -53,13 +53,13 @@ public:
 
     static ssize_t copyIoVec(struct iovec *src, int srcSize, struct iovec *dst, int dstSize);
 
-    bool empty();
+    bool empty() const;
 
     /**
      * 获取已写入的数据大小
      * @return
      */
-    ssize_t dataCount();
+    ssize_t dataCount() const;
 
     /**
      * 获取剩余空间大小

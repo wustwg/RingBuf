@@ -17,8 +17,8 @@ void testCopy() {
     // 负责拷贝数据到缓冲区
     std::thread thread1([&]() {
         printf("thread1 tid:%d.\n", gettid());
-//        auto fd = open("/home/wg/CLionProjects/ringbuf/陈翔六点半之民间高手.mp4", O_NONBLOCK | O_RDONLY);
-        auto fd = open("/home/wg/CLionProjects/ringbuf/a.txt", O_NONBLOCK | O_RDONLY);
+        auto fd = open("/home/wg/CLionProjects/ringbuf/陈翔六点半之民间高手.mp4", O_NONBLOCK | O_RDONLY);
+//        auto fd = open("/home/wg/CLionProjects/ringbuf/a.txt", O_NONBLOCK | O_RDONLY);
         if (fd <= 0) {
             printf("open file failed.error:%s\n", strerror(errno));
             return;
@@ -49,13 +49,15 @@ void testCopy() {
             ringBuf.setWriteSize(len);
             totalLen += len;
         }
+        printf("读取结束。");
         close(fd);
     });
 
     std::thread thread2([&]() {
         printf("thread2 tid:%d.\n", gettid());
-//        auto fd = open("陈翔六点半之民间高手2.mp4", O_NONBLOCK | O_WRONLY | O_CREAT);
-        auto fd = open("a.txt", O_NONBLOCK | O_WRONLY | O_CREAT);
+        RingBuf ringBuf2(2346);
+        auto fd = open("陈翔六点半之民间高手2.mp4", O_NONBLOCK | O_WRONLY | O_CREAT);
+//        auto fd = open("a.txt", O_NONBLOCK | O_WRONLY | O_CREAT);
         if (fd <= 0) {
             printf("open file2 failed.error:%s\n", strerror(errno));
             return;
@@ -64,10 +66,20 @@ void testCopy() {
         uint64_t totalLen = 0;
         std::unique_lock<std::mutex> uniqueLock{mutex};
         while (true) {
-            char buf[134]{};
             int i = 0;
+
+            struct iovec src[2]{};
+            auto ret = ringBuf.getReadIoVec(src, 2);
+            if (ret > 0) {
+                int ret2 = ringBuf2.writev(src, 2);
+                ringBuf.setRreadSize(ret2);
+                assert(ret - ringBuf.dataCount() == ret2);
+                totalLen += ret2;
+            }
+
+            char buf[134]{};
             while (i ++ < 11) {
-                len = ringBuf.read(buf, sizeof(buf));
+                len = ringBuf2.read(buf, sizeof(buf));
                 if (len == 0) {
                     break;
                 }
@@ -107,6 +119,7 @@ void testCopy() {
             ringBuf.setRreadSize(len);
             totalLen += len;*/
         }
+        printf("拷贝结束");
         close(fd);
     });
 

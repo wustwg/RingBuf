@@ -15,7 +15,7 @@ RingBuf::RingBuf(ssize_t size) : mSize(size) {
     mPending = 0;
 }
 
-ssize_t RingBuf::write(char *buf, ssize_t size) {
+ssize_t RingBuf::write(const char *buf, ssize_t size) {
     ssize_t maxCopyLen = std::min(mSize - mPending, size);
     assert(maxCopyLen >= 0);
     if (maxCopyLen == 0) {
@@ -52,7 +52,7 @@ ssize_t RingBuf::read(char *buf, ssize_t size) {
     return maxCopyLen;
 }
 
-bool RingBuf::empty() {
+bool RingBuf::empty() const {
     return mPending == mSize;
 }
 
@@ -75,7 +75,7 @@ ssize_t RingBuf::getWriteIoVec(struct iovec *out, ssize_t size) {
     return maxCopyLen;
 }
 
-ssize_t RingBuf::dataCount() {
+ssize_t RingBuf::dataCount() const {
     return mPending;
 }
 
@@ -126,25 +126,28 @@ ssize_t RingBuf::writev(struct iovec *src, int size) {
 ssize_t RingBuf::copyIoVec(struct iovec *src, int srcSize, struct iovec *dst, int dstSize) {
     // 分别表示i j 对应的已拷贝的数据长度
     ssize_t copyLenI = 0, copyLenJ = 0;
+    ssize_t totalCopyLen = 0;
     // i表示src的下标，j表示dst的下标
-    // copyLenS copyLenD 表示ij对应的是 当前可拷贝的长度。
-    for (int i = 0, j = 0, copyLenS = src[i].iov_len, copyLenD = dst[j].iov_len; i < srcSize && j < dstSize;) {
-        assert(copyLenS >= 0);
-        assert(copyLenD >= 0);
-        if (src[i].iov_base == nullptr || copyLenS == 0) {
+    for (int i = 0, j = 0; i < srcSize && j < dstSize;) {
+        assert(src[i].iov_len >= copyLenI);
+        assert(dst[j].iov_len >= copyLenJ);
+        if (src[i].iov_base == nullptr || src[i].iov_len - copyLenI == 0) {
             i++;
+            copyLenI = 0;
             continue;
         }
-        if (src[j].iov_base == nullptr || copyLenD == 0) {
+        if (src[j].iov_base == nullptr || dst[j].iov_len - copyLenJ == 0) {
             j++;
+            copyLenJ = 0;
             continue;
         }
-        ssize_t minLen = std::min(copyLenS, copyLenD);
-        memcpy((char *) dst[j].iov_base + copyLenJ, (char *) src[i].iov_base + copyLenI, minLen);
-        copyLenS -= minLen;
-        copyLenD -= minLen;
+        ssize_t minCopyLen = std::min(src[i].iov_len - copyLenI, dst[j].iov_len - copyLenJ);
+        memcpy((char *) dst[j].iov_base + copyLenJ, (char *) src[i].iov_base + copyLenI, minCopyLen);
+        copyLenI += minCopyLen;
+        copyLenJ += minCopyLen;
+        totalCopyLen += minCopyLen;
     }
-    return 0;
+    return totalCopyLen;
 }
 
 void RingBuf::setWriteSize(ssize_t ssize) {
