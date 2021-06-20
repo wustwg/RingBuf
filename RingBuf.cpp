@@ -27,7 +27,7 @@ ssize_t RingBuf::write(const char *buf, ssize_t size) {
         memcpy(mBuf + mWIndex, buf + maxCopyLen - maxCopyLenTmp, copyLen);
         mPending += copyLen;
         maxCopyLenTmp -= copyLen;
-        mWIndex = (mWIndex + copyLen) % mSize;
+        mWIndex = myMod(mWIndex + copyLen, mSize);
     }
 
     return maxCopyLen;
@@ -46,7 +46,7 @@ ssize_t RingBuf::read(char *buf, ssize_t size) {
         mPending -= copyLen;
         assert(mPending >= 0);
         maxCopyLenTmp -= copyLen;
-        mRIndex = (mRIndex + copyLen) % mSize;
+        mRIndex = myMod(mRIndex + copyLen, mSize);
     }
 
     return maxCopyLen;
@@ -69,7 +69,7 @@ ssize_t RingBuf::getWriteIoVec(struct iovec *out, ssize_t size) {
         out[i].iov_base = mBuf + tmpWindex;
         out[i].iov_len = copyLen;
         maxCopyLenTmp -= copyLen;
-        tmpWindex = (tmpWindex + copyLen) % mSize;
+        tmpWindex = myMod(tmpWindex + copyLen, mSize);
         i++;
     }
     return maxCopyLen;
@@ -79,7 +79,7 @@ ssize_t RingBuf::dataCount() const {
     return mPending;
 }
 
-ssize_t RingBuf::freeCount() {
+ssize_t RingBuf::freeCount() const {
     return mSize - mPending;
 }
 
@@ -95,7 +95,7 @@ ssize_t RingBuf::getReadIoVec(struct iovec *out, ssize_t size) {
         out[i].iov_base = mBuf + tmpRindex;
         out[i].iov_len = copyLen;
         maxCopyLenTmp -= copyLen;
-        tmpRindex = (tmpRindex + copyLen) % mSize;
+        tmpRindex = myMod(tmpRindex + copyLen, mSize);
         i++;
     }
     return mPending;
@@ -108,7 +108,7 @@ ssize_t RingBuf::readv(struct iovec *out, int size) {
         return 0;
     }
     auto rsize = copyIoVec(src, 2, out, size);
-    setRreadSize(rsize);
+    setReadSize(rsize);
     return rsize;
 }
 
@@ -118,9 +118,9 @@ ssize_t RingBuf::writev(struct iovec *src, int size) {
     if (len == 0) {
         return 0;
     }
-    auto wsize = copyIoVec(src, size, out, 2);
-    setWriteSize(wsize);
-    return wsize;
+    auto wSize = copyIoVec(src, size, out, 2);
+    setWriteSize(wSize);
+    return wSize;
 }
 
 ssize_t RingBuf::copyIoVec(struct iovec *src, int srcSize, struct iovec *dst, int dstSize) {
@@ -151,18 +151,25 @@ ssize_t RingBuf::copyIoVec(struct iovec *src, int srcSize, struct iovec *dst, in
 }
 
 void RingBuf::setWriteSize(ssize_t ssize) {
-    assert(ssize >= 0);
     mPending += ssize;
-    mWIndex = (mWIndex + ssize) % mSize;
+    assert(mPending <= mSize);
+    mWIndex = myMod(mWIndex + ssize, mSize);
 }
 
-void RingBuf::setRreadSize(ssize_t ssize) {
+void RingBuf::setReadSize(ssize_t ssize) {
     mPending -= ssize;
     assert(mPending >= 0);
-    mRIndex = (mRIndex + ssize) % mSize;
+    mRIndex = myMod(mRIndex + ssize, mSize);
 }
 
 RingBuf::~RingBuf() {
     delete mBuf;
     mBuf = nullptr;
+}
+
+ssize_t RingBuf::myMod(ssize_t left, ssize_t right) {
+    while (left >= right) {
+        left -= right;
+    }
+    return left;
 }

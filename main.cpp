@@ -72,9 +72,8 @@ void testCopy() {
             auto ret = ringBuf.getReadIoVec(src, 2);
             if (ret > 0) {
                 int ret2 = ringBuf2.writev(src, 2);
-                ringBuf.setRreadSize(ret2);
+                ringBuf.setReadSize(ret2);
                 assert(ret - ringBuf.dataCount() == ret2);
-                totalLen += ret2;
             }
 
             char buf[134]{};
@@ -116,7 +115,7 @@ void testCopy() {
             }
             len = writev(fd, src, 2);
             assert(len == ret);
-            ringBuf.setRreadSize(len);
+            ringBuf.setReadSize(len);
             totalLen += len;*/
         }
         printf("拷贝结束");

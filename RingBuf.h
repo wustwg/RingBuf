@@ -49,7 +49,7 @@ public:
 
     ssize_t getReadIoVec(struct iovec *out, ssize_t size);
 
-    void setRreadSize(ssize_t ssize);
+    void setReadSize(ssize_t ssize);
 
     static ssize_t copyIoVec(struct iovec *src, int srcSize, struct iovec *dst, int dstSize);
 
@@ -65,9 +65,16 @@ public:
      * 获取剩余空间大小
      * @return
      */
-    ssize_t freeCount();
+    ssize_t freeCount() const;
 
 private:
+    /**
+     * 取摩操作，类似与%的作用，但是是用辗转相除法. left % right
+     * @param left
+     * @param right
+     * @return
+     */
+    static ssize_t myMod(ssize_t left, ssize_t right);
     /**
      * 存储数据的buf指针
      */
@@ -81,6 +88,9 @@ private:
      * 读数据的起始下标
      */
     ssize_t mRIndex;
+    /**
+     * 存储空间大小
+     */
     const ssize_t mSize;
     /**
      * 已写入的总数据量
