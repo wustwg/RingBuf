@@ -47,8 +47,18 @@ public:
      */
     void setWriteSize(ssize_t ssize);
 
+    /**
+     * 获取当前缓冲区可读部分的iovec
+     * @param out
+     * @param size
+     * @return
+     */
     ssize_t getReadIoVec(struct iovec *out, ssize_t size);
 
+    /**
+     * 结合getReadIoVec使用的，如获取当前RingBuf的iovec之后，将其拷贝到别的RingBuf了，这时还要告诉原来的RingBuf被读取了多少数据
+     * @param ssize 多少数据被读取了
+     */
     void setReadSize(ssize_t ssize);
 
     static ssize_t copyIoVec(struct iovec *src, int srcSize, struct iovec *dst, int dstSize);

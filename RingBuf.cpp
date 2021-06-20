@@ -57,6 +57,8 @@ bool RingBuf::empty() const {
 }
 
 ssize_t RingBuf::getWriteIoVec(struct iovec *out, ssize_t size) {
+    memset(out, 0, sizeof(iovec) * size);
+
     ssize_t maxCopyLen = mSize - mPending;
     assert(maxCopyLen >= 0);
     if (maxCopyLen == 0) {
@@ -84,6 +86,8 @@ ssize_t RingBuf::freeCount() const {
 }
 
 ssize_t RingBuf::getReadIoVec(struct iovec *out, ssize_t size) {
+    memset(out, 0, sizeof(iovec) * size);
+
     assert(mPending >= 0);
     if (mPending == 0) {
         return 0;
