@@ -29,6 +29,8 @@ public:
 
     ssize_t read(char *buf, ssize_t size);
 
+    ssize_t peek(char *buf, ssize_t size) const ;
+
     ssize_t writev(struct iovec *src, int size);
 
     ssize_t readv(struct iovec *out, int size);

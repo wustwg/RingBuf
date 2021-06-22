@@ -20,6 +20,7 @@ void testCopy() {
         auto fd = open("/home/wg/CLionProjects/ringbuf/陈翔六点半之民间高手.mp4", O_NONBLOCK | O_RDONLY);
 //        auto fd = open("/home/wg/CLionProjects/ringbuf/a.txt", O_NONBLOCK | O_RDONLY);
         if (fd <= 0) {
+            isReadOver = true;
             printf("open file failed.error:%s\n", strerror(errno));
             return;
         }

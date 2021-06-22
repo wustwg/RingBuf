@@ -177,3 +177,22 @@ ssize_t RingBuf::myMod(ssize_t left, ssize_t right) {
     }
     return left;
 }
+
+ssize_t RingBuf::peek(char *buf, ssize_t size) const {
+    ssize_t maxCopyLen = std::min(mPending, size);
+    assert(maxCopyLen >= 0);
+    if (maxCopyLen == 0) {
+        return 0;
+    }
+    ssize_t maxCopyLenTmp = maxCopyLen;
+    auto tmpRIndex = mRIndex;
+    while (maxCopyLenTmp > 0) {
+        ssize_t copyLen = std::min(mSize - tmpRIndex, maxCopyLenTmp);
+        memcpy(buf + maxCopyLen - maxCopyLenTmp, mBuf + tmpRIndex, copyLen);
+
+        maxCopyLenTmp -= copyLen;
+        tmpRIndex = myMod(tmpRIndex + copyLen, mSize);
+    }
+
+    return maxCopyLen;
+}
