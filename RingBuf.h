@@ -31,9 +31,9 @@ public:
 
     ssize_t peek(char *buf, ssize_t size) const ;
 
-    ssize_t writev(struct iovec *src, int size);
+    ssize_t writev(const struct iovec *src, int size);
 
-    ssize_t readv(struct iovec *out, int size);
+    ssize_t readv(const struct iovec *out, int size);
 
     /**
      * 获取缓冲区的可写iovec
@@ -63,7 +63,7 @@ public:
      */
     void setReadSize(ssize_t ssize);
 
-    static ssize_t copyIoVec(struct iovec *src, int srcSize, struct iovec *dst, int dstSize);
+    static ssize_t copyIoVec(const struct iovec *src, int srcSize, const struct iovec *dst, int dstSize);
 
     bool empty() const;
 

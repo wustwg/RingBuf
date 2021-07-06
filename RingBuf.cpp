@@ -105,7 +105,7 @@ ssize_t RingBuf::getReadIoVec(struct iovec *out, ssize_t size) {
     return mPending;
 }
 
-ssize_t RingBuf::readv(struct iovec *out, int size) {
+ssize_t RingBuf::readv(const struct iovec *out, int size) {
     struct iovec src[2]{};
     auto len = getReadIoVec(src, 2);
     if (len == 0) {
@@ -116,7 +116,7 @@ ssize_t RingBuf::readv(struct iovec *out, int size) {
     return rsize;
 }
 
-ssize_t RingBuf::writev(struct iovec *src, int size) {
+ssize_t RingBuf::writev(const struct iovec *src, int size) {
     struct iovec out[2]{};
     auto len = getWriteIoVec(out, 2);
     if (len == 0) {
@@ -127,7 +127,7 @@ ssize_t RingBuf::writev(struct iovec *src, int size) {
     return wSize;
 }
 
-ssize_t RingBuf::copyIoVec(struct iovec *src, int srcSize, struct iovec *dst, int dstSize) {
+ssize_t RingBuf::copyIoVec(const struct iovec *src, int srcSize, const struct iovec *dst, int dstSize) {
     // 分别表示i j 对应的已拷贝的数据长度
     ssize_t copyLenI = 0, copyLenJ = 0;
     ssize_t totalCopyLen = 0;
