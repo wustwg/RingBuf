@@ -71,13 +71,15 @@ public:
      * 获取已写入的数据大小
      * @return
      */
-    ssize_t dataCount() const;
+    ssize_t dataSize() const;
 
     /**
      * 获取剩余空间大小
      * @return
      */
-    ssize_t freeCount() const;
+    ssize_t freeSize() const;
+
+    ssize_t totalSize() const;
 
 private:
     /**

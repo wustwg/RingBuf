@@ -77,11 +77,11 @@ ssize_t RingBuf::getWriteIoVec(struct iovec *out, ssize_t size) {
     return maxCopyLen;
 }
 
-ssize_t RingBuf::dataCount() const {
+ssize_t RingBuf::dataSize() const {
     return mPending;
 }
 
-ssize_t RingBuf::freeCount() const {
+ssize_t RingBuf::freeSize() const {
     return mSize - mPending;
 }
 
@@ -195,4 +195,8 @@ ssize_t RingBuf::peek(char *buf, ssize_t size) const {
     }
 
     return maxCopyLen;
+}
+
+ssize_t RingBuf::totalSize() const {
+    return mSize;
 }

@@ -74,7 +74,7 @@ void testCopy() {
             if (ret > 0) {
                 int ret2 = ringBuf2.writev(src, 2);
                 ringBuf.setReadSize(ret2);
-                assert(ret - ringBuf.dataCount() == ret2);
+                assert(ret - ringBuf.dataSize() == ret2);
             }
 
             char buf[134]{};
@@ -135,7 +135,7 @@ int main() {
 ////    auto ret = buf.write(buf2, sizeof(buf2));
 ////    printf("write len:%ld\n", ret);
 ////    ret = buf.read(buf3, sizeof(buf3));
-////    printf("write len:%ld buf3:%s left:%ld\n", ret, buf3, buf.dataCount());
+////    printf("write len:%ld buf3:%s left:%ld\n", ret, buf3, buf.dataSize());
 //    int i = 0;
 //    uint64_t len1 = 0, len2 = 0;
     using namespace std::chrono;
